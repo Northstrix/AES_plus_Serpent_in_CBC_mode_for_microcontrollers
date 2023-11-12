@@ -32,7 +32,7 @@ The code was successfully tested on the following boards:
 
 You should only pay attention to these two parts:
 </br>
-Encryption keys:
+Verification and encryption keys:
 ```
 byte hmackey[] = {"440yjmR9DJj3zF46lqR976IH4e4789pr00pzc430leIrBc06h0C7qZEgoD9z2i7SOXAnVw25xUu2X62hv1n203jh6WMKSfT01dbbZIum9Vf8IG4mjiYfzEo56R8Nd1rRlZ98Jcqb84TQz"};
 
