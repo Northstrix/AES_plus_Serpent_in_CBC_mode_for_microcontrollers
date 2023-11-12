@@ -80,3 +80,9 @@ Code that does the job:
     Serial.println("Integrity Verification failed!!!");
 ```
 You can ignore the other parts of the code.
+
+![image text](https://github.com/Northstrix/AES_plus_Serpent_in_CBC_mode_for_microcontrollers/blob/master/Pictures/Test.png?raw=true)
+
+## Visual representation of the encryption and decryption processes
+![image text](https://github.com/Northstrix/AES_plus_Serpent_in_CBC_mode_for_microcontrollers/blob/master/Pictures/How%20plaintext%20is%20passed%20to%20encryption%20algorithm.png)
+![image text](https://github.com/Northstrix/AES_plus_Serpent_in_CBC_mode_for_microcontrollers/blob/master/Pictures/Encryption%20with%20AES%20and%20Serpent%20in%20CBC.drawio.png)
