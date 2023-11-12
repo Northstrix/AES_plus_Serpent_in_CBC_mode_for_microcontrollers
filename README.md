@@ -15,7 +15,7 @@ https://github.com/intrbiz/arduino-crypto
 </br>
 All libraries are the properties of their respective owners.
 </br>
-LICENSES from the used libraries are inside of the "LICENSES" directory.
+Licenses from the used libraries are inside of the "LICENSES" directory.
 </br>
 *Note that the library with the implementation of AES was slightly modified to make it compatible with the STM32F407VET6.
 
@@ -61,7 +61,7 @@ uint8_t serp_key[32] = {
 Code that does the job:
 ```
   Serial.println("\nEncryption/Decryption Test");
-  String plaintext = "That string is encrypted using a combination of the AES and Serpent encryption algorithms in cipher block chaining mode. The integrity of that string is verified with the help of the HMAC-SHA256."
+  String plaintext = "That string is encrypted using a combination of the AES and Serpent encryption algorithms in cipher block chaining mode. The integrity of that string is verified with the help of the HMAC-SHA256.";
   int iv[16]; // Initialization vector
   for (int i = 0; i < 16; i++){
     iv[i] = random(256); // Fill iv array with random numbers. I suggest you use a more secure method of random number generation!!!
