@@ -1,190 +1,82 @@
-# ESP8266 Crypto
+# AES_plus_Blowfish_in_CBC_mode
+The AES_plus_Serpent_in_CBC_mode_for_microcontrollers repository contains code that enables you to encrypt your data using a combination of AES and Serpent encryption algorithms in CBC mode. In addition to that, the code in this repository enables you to verify the data integrity, thanks to the HMAC-SHA256.
 
-This is a minimal, lightweight crypto library for the ESP8266 IOT device.  It 
-provides the following functions:
+## Copyright/Ownership/Licenses
 
-* SHA256
-* AES 128 and 256
-* SHA256HMAC
-* RNG
+Attention! I didn't develop the libraries utilized by these sketches. I took them from the following repositories:
+</br>
+</br>
+https://github.com/zhouyangchao/AES
+</br>
+https://github.com/peterferrie/serpent
+</br>
+https://github.com/intrbiz/arduino-crypto
+</br>
+</br>
+All libraries are the properties of their respective owners.
+</br>
+LICENSES from the used libraries are inside of the "LICENSES" directory.
+</br>
+*Note that the library with the implementation of AES was slightly modified to make it compatible with the STM32F407VET6.
 
-The SHA256 and AES implementations are based upon the implementations in axTLS 
-except ported to the ESP8266 Arduino platform, credit to Cameron Rich for the 
-axTLS project.
+## Compatibility
+
+The code was successfully tested on the following boards:
+- STM32F407VET6
+- Teensy 4.1
+- ESP32
+- ESP8266
+
 
 ## Usage
 
-### SHA256HMAC
-
-The following snippet demonstrates how to compute the SHA256 HMAC authentication 
-code for a message.
-
-    /* Include the crypto library into your project */
-    #include <Crypto.h>
-    
-    /* The length of the key we will use for this HMAC */
-    /* The key can be of any length, 16 and 32 are common */
-    #define KEY_LENGTH 16
-    
-    /* Define our */
-    byte key[KEY_LENGTH] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-    
-    /* Create the HMAC instance with our key */
-    SHA256HMAC hmac(key, KEY_LENGTH);
-    
-    /* Update the HMAC with just a plain string (null terminated) */
-    hmac.doUpdate("Hello World");
-    
-    /* And or with a string and length */
-    const char *goodbye = "GoodBye World";
-    hmac.doUpdate(goodbye, strlen(goodbye));
-    
-    /* And or with a binary message */
-    byte message[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    hmac.doUpdate(message, sizeof(message));
-    
-    /* Finish the HMAC calculation and return the authentication code */
-    byte authCode[SHA256HMAC_SIZE];
-    hmac.doFinal(authCode);
-    
-    /* authCode now contains our 32 byte authentication code */
-    for (byte i; i < SHA256HMAC_SIZE; i++)
-    {
-        Serial.print(authCode[i], HEX);
-    }
-
-### SHA256
-
-The following snippet demonstrates how to compute the SHA256 hash of a message.
-
-    /* Create a SHA256 hash */
-    SHA256 hasher;
-    
-    /* Update the hash with your message, as many times as you like */
-    const char *hello = "Hello World";
-    hasher.doUpdate(hello, strlen(hello));
-    
-    /* Update the hash with just a plain string*/
-    hasher.doUpdate("Goodbye World");
-    
-    /* Update the hash with a binary message */
-    byte message[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    hasher.doUpdate(message, sizeof(message));
-    
-    /* Compute the final hash */
-    byte hash[SHA256_SIZE];
-    hasher.doFinal(hash);
-    
-    /* hash now contains our 32 byte hash */
-    for (byte i; i < SHA256_SIZE; i++)
-    {
-        Serial.print(hash[i], HEX);
-    }
-
-### AES-128
- 
+You should only pay attention to two parts:
+</br>
+Encryption keys:
 ```
-#include <Crypto.h>
-#include <base64.hpp>
+byte hmackey[] = {"440yjmR9DJj3zF46lqR976IH4e4789pr00pzc430leIrBc06h0C7qZEgoD9z2i7SOXAnVw25xUu2X62hv1n203jh6WMKSfT01dbbZIum9Vf8IG4mjiYfzEo56R8Nd1rRlZ98Jcqb84TQz"};
 
-#define BLOCK_SIZE 16
+uint8_t AES_key[32] = {
+0x70,0xee,0xac,0x3f,
+0xeb,0x1d,0x92,0xb3,
+0xdb,0xb2,0x75,0x0b,
+0xc0,0xe5,0x77,0x7d,
+0xc0,0x80,0x10,0x2b,
+0xb8,0x05,0x01,0xf7,
+0x50,0x6b,0xfa,0xb9,
+0x6c,0xf2,0xd0,0x6e
+};
 
-uint8_t key[BLOCK_SIZE] = { 0x1C,0x3E,0x4B,0xAF,0x13,0x4A,0x89,0xC3,0xF3,0x87,0x4F,0xBC,0xD7,0xF3, 0x31, 0x31 };
-uint8_t iv[BLOCK_SIZE] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-void bufferSize(char* text, int &length)
-{
-  int i = strlen(text);
-  int buf = round(i / BLOCK_SIZE) * BLOCK_SIZE;
-  length = (buf <= i) ? buf + BLOCK_SIZE : length = buf;
-}
-    
-void encrypt(char* plain_text, char* output, int length)
-{
-  byte enciphered[length];
-  RNG::fill(iv, BLOCK_SIZE); 
-  AES aesEncryptor(key, iv, AES::AES_MODE_128, AES::CIPHER_ENCRYPT);
-  aesEncryptor.process((uint8_t*)plain_text, enciphered, length);
-  int encrypted_size = sizeof(enciphered);
-  char encoded[encrypted_size];
-  encode_base64(enciphered, encrypted_size, (unsigned char*)encoded);
-  strcpy(output, encoded);
-}
-
-void decrypt(char* enciphered, char* output, int length)
-{
-  length = length + 1; //re-adjust
-  char decoded[length];
-  decode_base64((unsigned char*)enciphered, (unsigned char*)decoded);
-  bufferSize(enciphered, length);
-  byte deciphered[length];
-  AES aesDecryptor(key, iv, AES::AES_MODE_128, AES::CIPHER_DECRYPT);
-  aesDecryptor.process((uint8_t*)decoded, deciphered, length);
-  strcpy(output, (char*)deciphered);
-}
-
-void setup() {
-  Serial.begin(115200);
-  while (!Serial) {
-    ; //wait
+uint8_t serp_key[32] = {
+0x01,0x02,0x03,0x04,
+0x10,0x11,0x12,0x13,
+0x50,0x51,0x52,0x53,
+0x7a,0x7b,0x7c,0x7d,
+0xa0,0xa1,0xa2,0xa3,
+0xbb,0xcc,0xdd,0xee,
+0xfc,0xfd,0xfe,0xff,
+0x00,0xff,0x00,0xff
+};
+```
+Code that does the job:
+```
+  Serial.println("\nEncryption/Decryption Test");
+  String plaintext = "That string is encrypted using a combination of the AES and Serpent encryption algorithms in cipher block chaining mode. The integrity of that string is verified with the help of the HMAC-SHA256."
+  int iv[16]; // Initialization vector
+  for (int i = 0; i < 16; i++){
+    iv[i] = random(256); // Fill iv array with random numbers. I suggest you use a more secure method of random number generation!!!
   }
-}
-
-void loop() {
-  char plain_text[] = "1234567890ABCDEF1234567890ABCDEF";
-  
-  // encrypt
-  int length = 0;
-  bufferSize(plain_text, length);
-  char encrypted[length];
-  encrypt(plain_text, encrypted, length);
-
-  Serial.println("");
-  Serial.print("Encrypted: ");
-  Serial.println(encrypted); 
-
-  // decrypt
-  length = strlen(encrypted);
-  char decrypted[length];
-  decrypt(encrypted, decrypted, length);
-
-  Serial.print("Decrypted: ");
-  Serial.println(decrypted);
-
-  delay(5000);
-}
+  encrypt_string_with_aes_plus_serpent_in_cbc(plaintext, iv); // Function for encryption. Takes the plaintext and iv as the input.
+  Serial.println("\nCiphertext");
+  Serial.println(string_for_data);
+  String ciphertext = string_for_data; // Back the ciphertext up
+  decrypt_string_with_aes_plus_serpent_in_cbc(ciphertext); // Decrypt data
+  Serial.println("Plaintext:");
+  Serial.println(string_for_data);
+  bool plaintext_integr = verify_integrity(); // Check the integrity of the newly decrypted data
+  if (plaintext_integr == true)
+    Serial.println("Integrity verified successfully!");
+  else
+    Serial.println("Integrity Verification failed!!!");
 ```
-
-## License
-
-ESP8266 Crypto
-Copyright (c) 2016, Chris Ellis, with portions derived from axTLS
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met: 
-
-1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer. 
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution. 
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-## Author
-
-Chris Ellis
-
-Twitter: @intrbiz
-
-Copyright (c) Chris Ellis 2016
+You can ignore the other parts of the code.
