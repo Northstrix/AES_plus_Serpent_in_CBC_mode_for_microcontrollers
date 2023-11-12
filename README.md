@@ -30,7 +30,7 @@ The code was successfully tested on the following boards:
 
 ## Usage
 
-You should only pay attention to two parts:
+You should only pay attention to these two parts:
 </br>
 Encryption keys:
 ```
