@@ -1,4 +1,4 @@
-# AES_plus_Blowfish_in_CBC_mode
+# AES_plus_Serpent_in_CBC_mode_for_microcontrollers
 The AES_plus_Serpent_in_CBC_mode_for_microcontrollers repository contains code that enables you to encrypt your data using a combination of AES and Serpent encryption algorithms in CBC mode. In addition to that, the code in this repository enables you to verify the data integrity, thanks to the HMAC-SHA256.
 
 ## Copyright/Ownership/Licenses
